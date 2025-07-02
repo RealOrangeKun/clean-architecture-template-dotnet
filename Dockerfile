@@ -1,11 +1,11 @@
 # Use the official .NET SDK image for build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
 # Copy everything (solution, projects, etc.)
 COPY . .
 
-WORKDIR /src/src/API/[ProjectName].Api
+WORKDIR /app/src/API/[ProjectName].Api
 
 # Restore dependencies
 RUN dotnet restore [ProjectName].Api.csproj
