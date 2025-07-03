@@ -18,7 +18,7 @@ internal sealed class GetUserQueryHandler(
 {
     public async Task<Result<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        UserResponse? cacheResult = await cacheService.GetAsync<UserResponse>(
+        GetUser.UserResponse? cacheResult = await cacheService.GetAsync<GetUser.UserResponse>(
             request.ToString(),
             cancellationToken);
 
@@ -33,40 +33,29 @@ internal sealed class GetUserQueryHandler(
         const string sql =
             $"""
             SELECT
-                id AS {nameof(UserDbDto.Id)},
-                first_name AS {nameof(UserDbDto.FirstName)},
-                last_name AS {nameof(UserDbDto.LastName)},
-                email AS {nameof(UserDbDto.Email)},
-                role AS {nameof(UserDbDto.Role)}
+                id AS {nameof(UserResponse.Id)},
+                first_name AS {nameof(UserResponse.FirstName)},
+                last_name AS {nameof(UserResponse.LastName)},
+                email AS {nameof(UserResponse.Email)},
+                role AS {nameof(UserResponse.Role)}
             FROM users.users
             WHERE id = @Id;
             """;
 
-        UserDbDto? user = await connection.QuerySingleOrDefaultAsync<UserDbDto>(sql, request);
+        GetUser.UserResponse? user = await connection.QuerySingleOrDefaultAsync<GetUser.UserResponse>(sql, request);
 
         if (user is null)
         {
             return Result.Fail(UserErrors.UserNotFound(request.Id));
         }
 
-        var userResponse = new UserResponse(
-            user.Id,
-            user.FirstName,
-            user.LastName,
-            user.Email,
-            user.Role,
-            [],
-            0);
-
         await cacheService.SetAsync(
             request.ToString(),
-            userResponse,
+            user,
             TimeSpan.FromMinutes(1),
             cancellationToken);
 
-        return Result.Ok(userResponse)
+        return Result.Ok(user)
         .WithCustomSuccess("User retrieved successfully.", StatusCodes.Status200OK);
     }
-    internal sealed record UserDbDto(int Id, string FirstName, string LastName, string Email, string Role);
-
 }

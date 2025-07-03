@@ -29,15 +29,15 @@ internal sealed class GetUsersQueryHandler(
         const string sql =
             $"""
             SELECT
-                id AS {nameof(UserDbDto.Id)},
-                first_name AS {nameof(UserDbDto.FirstName)},
-                last_name AS {nameof(UserDbDto.LastName)},
-                email AS {nameof(UserDbDto.Email)}
+                id AS {nameof(UserResponse.Id)},
+                first_name AS {nameof(UserResponse.FirstName)},
+                last_name AS {nameof(UserResponse.LastName)},
+                email AS {nameof(UserResponse.Email)}
             FROM users.users
             WHERE role = 'User'
             """;
 
-        IReadOnlyCollection<UserDbDto> users = [.. await dbConnection.QueryAsync<UserDbDto>(sql, request)];
+        IReadOnlyCollection<UserResponse> users = [.. await dbConnection.QueryAsync<UserResponse>(sql, request)];
 
         var usersWithWarnings = users
             .Select(u =>
@@ -45,8 +45,7 @@ internal sealed class GetUsersQueryHandler(
                         u.Id,
                         u.FirstName,
                         u.LastName,
-                        u.Email,
-                        0))
+                        u.Email))
             .ToList();
 
         await cacheService.SetAsync(
@@ -58,6 +57,5 @@ internal sealed class GetUsersQueryHandler(
         return Result.Ok((IReadOnlyCollection<UserResponse>)usersWithWarnings.AsReadOnly())
             .WithCustomSuccess("Users retrieved successfully.");
     }
-    private sealed record UserDbDto(int Id, string FirstName, string LastName, string Email);
 }
 
