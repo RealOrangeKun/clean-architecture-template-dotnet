@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Project.Common.Application.Behaviors;
 
-internal sealed class ValidationPiplelineBehavior<TRequest, TResponse>(
+internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
