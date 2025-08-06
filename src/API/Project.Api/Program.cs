@@ -15,8 +15,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddProblemDetailsWithExtensions();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerDocumentation();
@@ -57,7 +58,8 @@ if (app.Environment.IsDevelopment())
 Type[] dbContextTypes = [
     typeof(UsersDbContext)];
 
-await app.TestDatabaseConnectionsOnStartup(dbContextTypes);
+// Uncomment the following line to test database connections on startup
+// await app.TestDatabaseConnectionsOnStartup(dbContextTypes);
 
 app.UseCors("AllowAll");
 
@@ -74,6 +76,6 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 app.MapEndpoints();
 
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;
