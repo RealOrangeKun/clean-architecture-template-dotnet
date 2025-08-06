@@ -1,7 +1,6 @@
 using Project.Common.Presentation.Endpoints;
 using Project.Common.Infrastructure;
 using Project.Common.Infrastructure.Configuration;
-using Project.Common.Infrastructure.Database;
 using System.Reflection;
 using Project.Api.Middlewares;
 using Project.Common.Application;
@@ -19,8 +18,9 @@ builder.Services.AddProblemDetailsWithExtensions();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerDocumentation();
+// builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddSwaggerDocumentation();
+builder.Services.AddOpenApi();
 
 
 builder.Services.AddCors(options =>
@@ -51,8 +51,9 @@ WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    // app.UseSwagger();
+    app.UseSwaggerUIWithOpenApi();
 }
 
 Type[] dbContextTypes = [

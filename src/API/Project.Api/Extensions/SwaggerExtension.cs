@@ -45,4 +45,13 @@ internal static class SwaggerExtension
         });
         return services;
     }
+    internal static IApplicationBuilder UseSwaggerUIWithOpenApi(this IApplicationBuilder app)
+    {
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/openapi/v1.json", "Project API v1");
+            options.RoutePrefix = "swagger";
+        });
+        return app;
+    }
 }
