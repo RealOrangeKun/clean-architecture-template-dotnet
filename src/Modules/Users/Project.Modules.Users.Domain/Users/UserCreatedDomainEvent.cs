@@ -2,7 +2,7 @@ using Project.Common.Domain.Abstractions;
 
 namespace Project.Modules.Users.Domain.Users;
 
-public sealed class UserCreatedDomainEvent(User user) : DomainEvent
+public sealed class UserCreatedDomainEvent(Guid id) : DomainEvent
 {
-    public User User { get; } = user;
+    public Guid UserId { get; } = id;
 }

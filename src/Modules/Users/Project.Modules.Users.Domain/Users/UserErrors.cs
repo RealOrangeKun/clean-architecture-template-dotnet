@@ -5,7 +5,7 @@ namespace Project.Modules.Users.Domain.Users;
 
 public static class UserErrors
 {
-    public static Error UserNotFound(int userId) =>
+    public static Error UserNotFound(Guid userId) =>
         new Error($"User with ID {userId} not found.")
             .WithErrorType(ErrorType.NotFound);
 
