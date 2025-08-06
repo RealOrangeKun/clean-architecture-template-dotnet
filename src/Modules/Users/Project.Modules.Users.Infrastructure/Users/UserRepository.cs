@@ -13,7 +13,7 @@ internal sealed class UserRepository(UsersDbContext dbContext) : IUserRepository
         await dbContext.Users.AddAsync(user, cancellationToken);
     }
 
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await dbContext.Users
             .Where(u => u.Id == id)
@@ -27,7 +27,7 @@ internal sealed class UserRepository(UsersDbContext dbContext) : IUserRepository
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
-    public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users
             .AsNoTracking()

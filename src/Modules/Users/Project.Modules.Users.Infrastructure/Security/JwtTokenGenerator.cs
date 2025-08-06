@@ -11,7 +11,7 @@ public class JwtTokenGenerator(IOptions<JwtSettings> jwtOptions) : IJwtTokenGene
 {
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
 
-    public string GenerateToken(int userId, string role)
+    public string GenerateToken(Guid userId, string role)
     {
         string key = _jwtSettings.Key ?? throw new InvalidOperationException("JWT signing key not configured.");
         string? issuer = _jwtSettings.Authority;
