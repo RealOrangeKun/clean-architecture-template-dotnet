@@ -1,10 +1,14 @@
 using System.Text.Json;
 using Project.Common.Presentation.Results;
 using Microsoft.AspNetCore.Diagnostics;
+using Project.Common.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Project.Api.Middlewares;
 
-internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+internal sealed class GlobalExceptionHandler(
+    ILogger<GlobalExceptionHandler> logger,
+    IProblemDetailsService problemDetailsService)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext,
@@ -15,25 +19,24 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
 
         httpContext.Response.ContentType = "application/json";
 
-        if (exception is BadHttpRequestException ||
-            exception is JsonException)
+        httpContext.Response.StatusCode = exception switch
         {
-            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            var errorResponse = ApiResponse.Create(
-                success: false,
-                message: "Invalid or missing request body.",
-                errors: ["The request body could not be processed."]);
-            await httpContext.Response.WriteAsJsonAsync(errorResponse, cancellationToken);
-            return true;
-        }
+            ProjectException => StatusCodes.Status400BadRequest,
+            _ => 500
+        };
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        var genericError = ApiResponse.Create(
-            success: false,
-            message: "An unexpected error occurred. Please try again later.",
-            errors: ["Internal server error."]);
-        await httpContext.Response.WriteAsJsonAsync(genericError, cancellationToken);
 
-        return true;
+
+        return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            Exception = exception,
+            ProblemDetails = new ProblemDetails
+            {
+                Type = exception.GetType().Name,
+                Title = "An error occurred while processing your request.",
+                Detail = exception.Message
+            }
+        });
     }
 }
