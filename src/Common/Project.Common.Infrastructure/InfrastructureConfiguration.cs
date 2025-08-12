@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Quartz;
+using FluentEmail.Core.Interfaces;
+using FluentEmail.Smtp;
 
 namespace Project.Common.Infrastructure;
 
@@ -21,7 +23,8 @@ public static class InfrastructureConfiguration
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         string databaseConnectionString,
-        string redisConnectionString)
+        string redisConnectionString,
+        string fromEmail)
     {
         services.AddAuthenticationInternal();
 
@@ -31,25 +34,7 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<DomainEventsDispatcherInterceptor>();
 
-        services.AddOptions<FluentEmailOptions>()
-            .BindConfiguration("FluentEmail");
-
-        ServiceProvider provider = services.BuildServiceProvider();
-        FluentEmailOptions options = provider.GetRequiredService<IOptions<FluentEmailOptions>>().Value;
-        services.AddFluentEmail(options.From)
-            .AddRazorRenderer()
-            .AddSmtpSender(() =>
-            {
-                FluentEmailOptions smtpOptions = provider.GetRequiredService<IOptions<FluentEmailOptions>>().Value;
-                var client = new SmtpClient(smtpOptions.Host, smtpOptions.Port)
-                {
-                    Credentials = new NetworkCredential(smtpOptions.Username, smtpOptions.Password),
-                    EnableSsl = true
-                };
-                return client;
-            });
-
-        services.TryAddScoped<IEmailService, EmailService>();
+        services.AddEmailServices(fromEmail);
 
         services.AddQuartz();
 
@@ -58,6 +43,30 @@ public static class InfrastructureConfiguration
         services.AddCachingInternal(redisConnectionString);
 
         services.AddSingleton<ICacheService, CacheService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddEmailServices(
+        this IServiceCollection services,
+        string fromEmail)
+    {
+        services.AddOptions<FluentEmailOptions>()
+            .BindConfiguration(FluentEmailOptions.SectionName);
+
+        services.TryAddScoped<ISmtpClientFactory, SmtpClientFactory>();
+
+        services.AddFluentEmail(fromEmail)
+            .AddRazorRenderer();
+
+        services.AddScoped<ISender>(sp =>
+        {
+            ISmtpClientFactory factory = sp.GetRequiredService<ISmtpClientFactory>();
+            SmtpClient client = factory.Create();
+            return new SmtpSender(client);
+        });
+
+        services.TryAddScoped<IEmailService, EmailService>();
 
         return services;
     }
