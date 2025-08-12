@@ -2,6 +2,7 @@ namespace Project.Common.Infrastructure.Email;
 
 public class FluentEmailOptions
 {
+    public static string SectionName => "FluentEmail";
     public string From { get; set; } = string.Empty;
     public string Host { get; set; } = string.Empty;
     public int Port { get; set; }
