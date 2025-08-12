@@ -20,7 +20,8 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        string databaseConnectionString)
+        string databaseConnectionString,
+        string redisConnectionString)
     {
         services.AddAuthenticationInternal();
 
@@ -55,7 +56,7 @@ public static class InfrastructureConfiguration
 
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
-        services.AddDistributedMemoryCache();
+        services.AddCachingInternal(redisConnectionString);
 
         services.AddSingleton<ICacheService, CacheService>();
 

@@ -39,11 +39,12 @@ Assembly[] moduleApplicationAssemblies = [
 builder.Services.AddApplication(moduleApplicationAssemblies);
 
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
+string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow("Redis");
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(databaseConnectionString, name: "database", tags: ["ready"]);
 
-builder.Services.AddInfrastructure(databaseConnectionString);
+builder.Services.AddInfrastructure(databaseConnectionString, redisConnectionString);
 
 builder.Services.AddUsersModule(builder.Configuration);
 

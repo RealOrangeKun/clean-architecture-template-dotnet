@@ -18,7 +18,7 @@ internal sealed class GetUserQueryHandler(
 {
     public async Task<Result<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        GetUser.UserResponse? cacheResult = await cacheService.GetAsync<GetUser.UserResponse>(
+        UserResponse? cacheResult = await cacheService.GetAsync<UserResponse>(
             request.ToString(),
             cancellationToken);
 
@@ -42,7 +42,7 @@ internal sealed class GetUserQueryHandler(
             WHERE id = @Id;
             """;
 
-        GetUser.UserResponse? user = await connection.QuerySingleOrDefaultAsync<GetUser.UserResponse>(sql, request);
+        UserResponse? user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, request);
 
         if (user is null)
         {
