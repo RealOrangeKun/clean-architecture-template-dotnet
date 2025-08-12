@@ -7,7 +7,7 @@ namespace Project.Common.Infrastructure.Caching;
 public sealed class HybridCacheConfigureOptions(IConfiguration configuration)
     : IConfigureNamedOptions<HybridCacheOptions>
 {
-    private const string _configurationSectionName = "HybridCache";
+    private const string configurationSectionName = "HybridCache";
 
     public void Configure(string? name, HybridCacheOptions options)
     {
@@ -16,6 +16,6 @@ public sealed class HybridCacheConfigureOptions(IConfiguration configuration)
 
     public void Configure(HybridCacheOptions options)
     {
-        configuration.GetSection(_configurationSectionName).Bind(options);
+        configuration.GetSection(configurationSectionName).Bind(options);
     }
 }
