@@ -1,7 +1,5 @@
-using System.Data.Common;
 using FluentResults;
 using MediatR;
-using Project.Common.Application.Data;
 using Project.Common.Application.Email;
 using Project.Common.Application.Messaging;
 using Project.Modules.Users.Application.Users.GetUser;

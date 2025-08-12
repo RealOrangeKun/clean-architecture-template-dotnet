@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Project.Common.Application.Caching;
-using Project.Common.Infrastructure.Configuration;
 
 namespace Project.Common.Infrastructure.Caching;
 
