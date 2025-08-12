@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Project.Modules.Users.Infrastructure;
 
@@ -31,10 +32,10 @@ public static class UsersModule
     {
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-        services.AddDbContext<UsersDbContext>((sp, options) =>
+        services.AddDbContextPool<UsersDbContext>((sp, options) =>
             options
                 .UseNpgsql(
-                    configuration.GetConnectionString("Database"),
+                    sp.GetRequiredService<NpgsqlDataSource>(),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Users))
                 .AddInterceptors(sp.GetRequiredService<DomainEventsDispatcherInterceptor>())

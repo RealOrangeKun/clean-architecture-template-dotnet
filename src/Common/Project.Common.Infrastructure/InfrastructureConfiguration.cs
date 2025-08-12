@@ -25,8 +25,7 @@ public static class InfrastructureConfiguration
     {
         services.AddAuthenticationInternal();
 
-        NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
-        services.TryAddSingleton(npgsqlDataSource);
+        services.AddNpgsqlDataSource(databaseConnectionString);
 
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
