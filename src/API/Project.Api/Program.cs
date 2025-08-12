@@ -9,6 +9,7 @@ using Project.Modules.Users.Infrastructure;
 using Project.Modules.Users.Infrastructure.Database;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
+using Project.Common.Infrastructure.Email;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -40,11 +41,15 @@ builder.Services.AddApplication(moduleApplicationAssemblies);
 
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow("Redis");
+string fromEmail = builder.Configuration.GetValueOrThrow<string>($"{FluentEmailOptions.SectionName}:From");
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(databaseConnectionString, name: "database", tags: ["ready"]);
 
-builder.Services.AddInfrastructure(databaseConnectionString, redisConnectionString);
+builder.Services.AddInfrastructure(
+    databaseConnectionString,
+    redisConnectionString,
+    fromEmail);
 
 builder.Services.AddUsersModule(builder.Configuration);
 
