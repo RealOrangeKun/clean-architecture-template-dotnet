@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Project.Common.Presentation.Results;
 using Microsoft.AspNetCore.Diagnostics;
 using Project.Common.Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
