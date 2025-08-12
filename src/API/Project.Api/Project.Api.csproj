@@ -29,4 +29,11 @@
     <ProjectReference Include="..\..\Modules\Users\Project.Modules.Users.Infrastructure\Project.Modules.Users.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\Modules\Users\Project.Modules.Users.Application\Emails\Templates\**\*.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Emails\Templates\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>
