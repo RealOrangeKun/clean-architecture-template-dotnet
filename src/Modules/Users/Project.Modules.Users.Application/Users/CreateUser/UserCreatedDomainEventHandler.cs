@@ -2,6 +2,7 @@ using FluentResults;
 using MediatR;
 using Project.Common.Application.Email;
 using Project.Common.Application.Messaging;
+using Project.Modules.Users.Application.Emails.Models;
 using Project.Modules.Users.Application.Users.GetUser;
 using Project.Modules.Users.Domain.Users;
 
@@ -20,13 +21,18 @@ internal sealed class UserCreatedDomainEventHandler(
 
         UserResponse user = userResult.Value;
 
-        string templatePath = Path.Combine(AppContext.BaseDirectory, "Templates", "Emails", "WelcomeUser.cshtml");
+        string templatePath = Path.Combine(AppContext.BaseDirectory, "Emails", "Templates", "WelcomeUser.cshtml");
+
+        var emailModel = new WelcomeUserEmailModel
+        {
+            FirstName = user.FirstName
+        };
 
         await emailService.SendTemplateAsync(
             user.Email,
             "Welcome to Project!",
             templatePath,
-            new { user.FirstName },
+            emailModel,
             cancellationToken
         );
     }

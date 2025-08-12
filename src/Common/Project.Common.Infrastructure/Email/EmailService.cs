@@ -15,7 +15,7 @@ internal sealed class EmailService(IFluentEmailFactory fluentEmailFactory) : IEm
                 .To(to)
                 .Subject(subject)
                 .Body(body, isHtml)
-                .SendAsync();
+                .SendAsync(cancellationToken);
 
 
             return response.Successful;
