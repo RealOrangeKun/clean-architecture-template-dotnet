@@ -10,10 +10,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.HasKey(u => u.Id);
 
-        builder.Property(u => u.Id)
-            .ValueGeneratedOnAdd()
-            .IsRequired();
-
         builder.Property(u => u.Role)
             .IsRequired()
             .HasConversion<string>()
