@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -8,16 +9,23 @@ namespace Project.Common.Presentation.Endpoints;
 
 public static class Endpointxtensions
 {
+    private static readonly ConcurrentDictionary<Assembly, Type[]> _endpointCache = [];
     public static IServiceCollection AddEndpoints(this IServiceCollection services,
         params Assembly[] assemblies)
     {
-        ServiceDescriptor[] serviceDescriptors = [.. assemblies
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => type is {IsAbstract: false, IsInterface: false} &&
-                           type.IsAssignableTo(typeof(IEndpoint)))
-            .Select(type => ServiceDescriptor.Singleton(typeof(IEndpoint), type))];
+        foreach (Assembly assembly in assemblies)
+        {
+            Type[] endpointTypes = _endpointCache.GetOrAdd(assembly, asm =>
+                [.. asm.DefinedTypes
+                    .Where(t => !t.IsAbstract && !t.IsInterface && t.IsAssignableTo(typeof(IEndpoint)))
+                    .Select(t => t.AsType())]
+            );
 
-        services.TryAddEnumerable(serviceDescriptors);
+            foreach (Type type in endpointTypes)
+            {
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IEndpoint), type));
+            }
+        }
 
         return services;
     }
