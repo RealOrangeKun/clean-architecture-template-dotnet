@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Project.Modules.Users.Infrastructure.Database;
@@ -11,9 +12,11 @@ using Project.Modules.Users.Infrastructure.Database;
 namespace Project.Modules.Users.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250814135615_OutboxCreation")]
+    partial class OutboxCreation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,23 +60,6 @@ namespace Project.Modules.Users.Infrastructure.Database.Migrations
                         .HasName("pk_outbox_messages");
 
                     b.ToTable("outbox_messages", "users");
-                });
-
-            modelBuilder.Entity("Project.Common.Infrastructure.Outbox.OutboxMessageConsumer", b =>
-                {
-                    b.Property<Guid>("OutboxMessageId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("outbox_message_id");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("name");
-
-                    b.HasKey("OutboxMessageId", "Name")
-                        .HasName("pk_outbox_message_consumers");
-
-                    b.ToTable("outbox_message_consumers", "users");
                 });
 
             modelBuilder.Entity("Project.Modules.Users.Domain.Users.User", b =>

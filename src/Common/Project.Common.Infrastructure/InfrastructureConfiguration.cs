@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Mail;
+﻿using System.Net.Mail;
 using Project.Common.Application.Caching;
 using Project.Common.Application.Data;
 using Project.Common.Application.Email;
@@ -10,11 +9,10 @@ using Project.Common.Infrastructure.Email;
 using Project.Common.Infrastructure.Interceptors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
-using Npgsql;
 using Quartz;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
+using Project.Common.Infrastructure.Outbox;
 
 namespace Project.Common.Infrastructure;
 
@@ -32,7 +30,7 @@ public static class InfrastructureConfiguration
 
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
-        services.TryAddSingleton<DomainEventsDispatcherInterceptor>();
+        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
 
         services.AddEmailServices(fromEmail);
 

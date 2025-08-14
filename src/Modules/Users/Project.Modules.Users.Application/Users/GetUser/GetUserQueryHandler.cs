@@ -18,16 +18,22 @@ internal sealed class GetUserQueryHandler(
 {
     public async Task<Result<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        UserResponse? cacheResult = await cacheService.GetAsync<UserResponse>(
+        UserResponse? user = await cacheService.GetOrCreateAsync(
             request.ToString(),
+            async _ => await FetchUserAsync(request, cancellationToken),
+            TimeSpan.FromMinutes(1),
             cancellationToken);
 
-        if (cacheResult is not null)
+        if (user is null)
         {
-            return Result.Ok(cacheResult)
-                .WithCustomSuccess("User retrieved from cache.", StatusCodes.Status200OK);
+            return Result.Fail(UserErrors.UserNotFound(request.Id));
         }
 
+        return Result.Ok(user)
+            .WithCustomSuccess("User retrieved successfully.", StatusCodes.Status200OK);
+    }
+    private async Task<UserResponse?> FetchUserAsync(GetUserQuery request, CancellationToken cancellationToken)
+    {
         await using DbConnection connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
 
         const string sql =
@@ -42,20 +48,6 @@ internal sealed class GetUserQueryHandler(
             WHERE id = @Id;
             """;
 
-        UserResponse? user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, request);
-
-        if (user is null)
-        {
-            return Result.Fail(UserErrors.UserNotFound(request.Id));
-        }
-
-        await cacheService.SetAsync(
-            request.ToString(),
-            user,
-            TimeSpan.FromMinutes(1),
-            cancellationToken);
-
-        return Result.Ok(user)
-        .WithCustomSuccess("User retrieved successfully.", StatusCodes.Status200OK);
+        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, request);
     }
 }

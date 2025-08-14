@@ -11,6 +11,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Project.Modules.Users.Infrastructure.Outbox;
+using Project.Common.Application.Messaging;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Reflection;
+using Project.Common.Infrastructure.Outbox;
 
 namespace Project.Modules.Users.Infrastructure;
 
@@ -20,6 +25,8 @@ public static class UsersModule
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddDomainEventHandlers();
+
         services.AddInfrastructure(configuration);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
@@ -38,7 +45,7 @@ public static class UsersModule
                     sp.GetRequiredService<NpgsqlDataSource>(),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Users))
-                .AddInterceptors(sp.GetRequiredService<DomainEventsDispatcherInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUserRepository, UserRepository>();
@@ -50,6 +57,22 @@ public static class UsersModule
         services.Configure<JwtSettings>(
             configuration.GetSection("Authentication"));
 
+        services.Configure<OutboxOptions>(configuration.GetSection("Users:Outbox"));
+
+        services.ConfigureOptions<ConfigureProcessOutboxJob>();
+
         return services;
     }
+
+    private static void AddDomainEventHandlers(this IServiceCollection services)
+    {
+        services.Scan(scan => scan
+            .FromAssemblies(Application.AssemblyReference.Assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.Decorate(typeof(IDomainEventHandler<>), typeof(IdempotentDomainEventHandler<>));
+    }
+
 }
