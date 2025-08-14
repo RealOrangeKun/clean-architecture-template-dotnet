@@ -12,9 +12,5 @@ public abstract class DomainEventHandler<TDomainEvent> : IDomainEventHandler<TDo
         return HandleAsync((TDomainEvent)domainEvent, cancellationToken);
     }
 
-    public Task Handle(TDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return HandleAsync(notification, cancellationToken);
-    }
 }
 
