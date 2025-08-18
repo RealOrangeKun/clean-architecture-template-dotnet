@@ -5,6 +5,7 @@ namespace Project.Common.Domain;
 public static class ErrorMetadata
 {
     public const string ErrorTypeKey = "ErrorType";
+    public const string ValidationFailuresKey = "ValidationFailures";
 
     public static Error WithErrorType(this Error error, ErrorType errorType)
     {

@@ -44,8 +44,8 @@ public static class ApiResult
 
     private static IEnumerable<string>? ExtractValidationErrors(ResultBase result)
     {
-        if (result.Errors.FirstOrDefault() is Error error &&
-            error.Metadata.TryGetValue("ValidationFailures", out object? failuresObj) &&
+        if (result.Errors.Count > 0 && result.Errors[0] is Error error &&
+            error.Metadata.TryGetValue(ErrorMetadata.ValidationFailuresKey, out object? failuresObj) &&
             failuresObj is ValidationFailure[] failuresArr)
         {
             return failuresArr.Select(f => $"{f.PropertyName}: {f.ErrorMessage}");
@@ -57,7 +57,7 @@ public static class ApiResult
     {
         if (result.IsSuccess)
         {
-            ISuccess? success = result.Successes.FirstOrDefault();
+            ISuccess? success = result.Successes.Count > 0 ? result.Successes[0] : null;
             if (success is Success s)
             {
                 if (s.Metadata.TryGetValue(SuccessMetadata.StatusCodeKey, out object? statusCodeObj) && statusCodeObj is int statusCode)
@@ -67,12 +67,11 @@ public static class ApiResult
             }
         }
 
-
-        IError? firstError = result.Errors.FirstOrDefault();
+        IError? firstError = result.Errors.Count > 0 ? result.Errors[0] : null;
 
         if (firstError is Error e)
         {
-            if (e.Metadata.TryGetValue(ErrorMetadata.ErrorTypeKey, out object? typeObj) && typeObj is ErrorType errorType)
+            if (e.TryGetErrorType(out ErrorType errorType))
             {
                 return errorType switch
                 {
@@ -93,7 +92,7 @@ public static class ApiResult
     {
         if (result.IsSuccess)
         {
-            ISuccess? success = result.Successes.FirstOrDefault();
+            ISuccess? success = result.Successes.Count > 0 ? result.Successes[0] : null;
             if (success is Success s)
             {
                 if (s.Metadata.TryGetValue(SuccessMetadata.StatusCodeKey, out object? statusCodeObj) && statusCodeObj is int statusCode)
@@ -103,11 +102,11 @@ public static class ApiResult
             }
         }
 
-        IError? firstError = result.Errors.FirstOrDefault();
+        IError? firstError = result.Errors.Count > 0 ? result.Errors[0] : null;
 
         if (firstError is Error e)
         {
-            if (e.Metadata.TryGetValue(ErrorMetadata.ErrorTypeKey, out object? typeObj) && typeObj is ErrorType errorType)
+            if (e.TryGetErrorType(out ErrorType errorType))
             {
                 return errorType switch
                 {

@@ -6,7 +6,6 @@ namespace Project.Common.Domain;
 public static class SuccessMetadata
 {
     public const string StatusCodeKey = "StatusCode";
-    public const string MessageKey = "Message";
 
     public static Success WithStatusCode(this Success success, int statusCode)
     {

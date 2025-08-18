@@ -23,7 +23,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
 
         Error error = new Error("Validation failed")
             .WithErrorType(ErrorType.Validation)
-            .WithMetadata("ValidationFailures", failures);
+            .WithMetadata(ErrorMetadata.ValidationFailuresKey, failures);
 
         if (typeof(TResponse).IsGenericType &&
             typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
