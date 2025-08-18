@@ -73,15 +73,7 @@ public static class ApiResult
         {
             if (e.TryGetErrorType(out ErrorType errorType))
             {
-                return errorType switch
-                {
-                    ErrorType.Validation => StatusCodes.Status400BadRequest,
-                    ErrorType.Conflict => StatusCodes.Status409Conflict,
-                    ErrorType.NotFound => StatusCodes.Status404NotFound,
-                    ErrorType.Problem => StatusCodes.Status400BadRequest,
-                    ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-                    _ => StatusCodes.Status500InternalServerError
-                };
+                return MapErrorTypeToStatusCode(errorType);
             }
         }
 
@@ -108,18 +100,23 @@ public static class ApiResult
         {
             if (e.TryGetErrorType(out ErrorType errorType))
             {
-                return errorType switch
-                {
-                    ErrorType.Validation => StatusCodes.Status400BadRequest,
-                    ErrorType.Conflict => StatusCodes.Status409Conflict,
-                    ErrorType.NotFound => StatusCodes.Status404NotFound,
-                    ErrorType.Problem => StatusCodes.Status400BadRequest,
-                    ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-                    _ => StatusCodes.Status500InternalServerError
-                };
+                return MapErrorTypeToStatusCode(errorType);
             }
         }
 
         return StatusCodes.Status500InternalServerError;
+    }
+
+    private static int MapErrorTypeToStatusCode(ErrorType errorType)
+    {
+        return errorType switch
+        {
+            ErrorType.Validation => StatusCodes.Status400BadRequest,
+            ErrorType.Conflict => StatusCodes.Status409Conflict,
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
+            ErrorType.Problem => StatusCodes.Status400BadRequest,
+            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+            _ => StatusCodes.Status500InternalServerError
+        };
     }
 }
