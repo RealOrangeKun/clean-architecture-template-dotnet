@@ -7,9 +7,11 @@ internal sealed class CacheService(HybridCache cache) : ICacheService
 {
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        return await cache.GetOrCreateAsync(
+        return await cache.GetOrCreateAsync<T?>(
             key,
-            factory: _ => ValueTask.FromResult<T?>(default),
+            factory: null!,
+            options: new HybridCacheEntryOptions() { Flags = HybridCacheEntryFlags.DisableUnderlyingData },
+            tags: null,
             cancellationToken: cancellationToken);
     }
 
