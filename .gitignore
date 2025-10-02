@@ -454,6 +454,11 @@ docker-compose.override.yml
 *.tfvars
 .terraform/
 
+postgres_data
+redis_data
+pgadmin_data
+rabbitmq_data
+
 # Package manager lock files (uncomment if you want to ignore them)
 # package-lock.json
 # yarn.lock

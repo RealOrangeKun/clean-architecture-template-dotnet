@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:17.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - project-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - project-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "25:1025"
+      - "8080:8025" 
+    networks:
+      - project-network
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-project
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - project-network
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_project
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - project-network
+    restart: unless-stopped
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+  rabbitmq_data:
+
+
+networks:
+  project-network:
+    driver: bridge
