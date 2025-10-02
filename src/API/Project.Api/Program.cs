@@ -24,7 +24,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerDocumentation();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApiDocumentation();
 
 
 builder.Services.AddCors(options =>
