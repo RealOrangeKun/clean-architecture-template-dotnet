@@ -45,6 +45,51 @@ internal static class SwaggerExtension
         });
         return services;
     }
+
+    internal static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services)
+    {
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            {
+                document.Info = new OpenApiInfo
+                {
+                    Title = "Project API",
+                    Version = "v1",
+                    Description = "Project API Documentation",
+                };
+
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+                };
+
+                document.SecurityRequirements.Add(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
+
+                return Task.CompletedTask;
+            });
+        });
+
+        return services;
+    }
     internal static IApplicationBuilder UseSwaggerUIWithOpenApi(this IApplicationBuilder app)
     {
         app.UseSwaggerUI(options =>
@@ -55,3 +100,4 @@ internal static class SwaggerExtension
         return app;
     }
 }
+

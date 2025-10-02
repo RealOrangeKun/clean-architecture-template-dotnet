@@ -10,6 +10,7 @@ using Project.Modules.Users.Infrastructure.Database;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using Project.Common.Infrastructure.Email;
+using MassTransit;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,9 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddProblemDetailsWithExtensions();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<DatabaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+;
 
 // builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerDocumentation();
@@ -46,10 +49,14 @@ string fromEmail = builder.Configuration.GetValueOrThrow<string>($"{FluentEmailO
 builder.Services.AddHealthChecks()
     .AddNpgSql(databaseConnectionString, name: "database", tags: ["ready"]);
 
-builder.Services.AddInfrastructure(
-    databaseConnectionString,
-    redisConnectionString,
-    fromEmail);
+Action<IRegistrationConfigurator>[] configureConsumersActions = [
+    UsersModule.ConfigureConsumers];
+
+InfrastructureOptions infrastructureOptions = builder.Configuration.BuildInfrastructureOptions(
+    builder.Logging,
+    configureConsumersActions);
+
+builder.Services.AddInfrastructure(infrastructureOptions);
 
 builder.Services.AddUsersModule(builder.Configuration);
 
