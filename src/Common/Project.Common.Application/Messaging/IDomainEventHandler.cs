@@ -1,5 +1,4 @@
 using Project.Common.Domain.Abstractions;
-using MediatR;
 
 namespace Project.Common.Application.Messaging;
 

@@ -4,10 +4,7 @@ using FluentResults;
 using Project.Common.Application.Caching;
 using Project.Common.Application.Data;
 using Project.Common.Application.Messaging;
-using Project.Common.Domain;
 using Project.Modules.Users.Domain.Users;
-
-using Microsoft.AspNetCore.Http;
 
 namespace Project.Modules.Users.Application.Users.GetUser;
 
@@ -29,8 +26,7 @@ internal sealed class GetUserQueryHandler(
             return Result.Fail(UserErrors.UserNotFound(request.Id));
         }
 
-        return Result.Ok(user)
-            .WithCustomSuccess("User retrieved successfully.", StatusCodes.Status200OK);
+        return Result.Ok(user);
     }
     private async Task<UserResponse?> FetchUserAsync(GetUserQuery request, CancellationToken cancellationToken)
     {

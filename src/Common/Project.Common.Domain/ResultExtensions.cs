@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Project.Common.Domain;
 
+[Obsolete("Use Result.Ok() or Result<T>.Ok() with appropriate success messages instead")]
 public static class ResultExtensions
 {
     public static Result WithCustomSuccess(

@@ -1,6 +1,5 @@
 using FluentResults;
 using Project.Common.Application.Messaging;
-using Project.Common.Domain;
 using Project.Modules.Users.Application.Abstractions.Security;
 using Project.Modules.Users.Application.Abstractions.Users;
 using Project.Modules.Users.Domain.Users;
@@ -25,7 +24,6 @@ internal sealed class LoginUserCommandHandler(
 
         var loginResponse = new LoginUserResponse(accessToken);
 
-        return Result.Ok(loginResponse)
-            .WithCustomSuccess("User logged in successfully.");
+        return Result.Ok(loginResponse);
     }
 }

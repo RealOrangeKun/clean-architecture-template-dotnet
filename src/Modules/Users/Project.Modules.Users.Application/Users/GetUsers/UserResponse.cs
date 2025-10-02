@@ -1,3 +1,3 @@
 namespace Project.Modules.Users.Application.Users.GetUsers;
 
-public sealed record UserResponse(int Id, string FirstName, string LastName, string Email);
+public sealed record UserResponse(Guid Id, string FirstName, string LastName, string Email);
