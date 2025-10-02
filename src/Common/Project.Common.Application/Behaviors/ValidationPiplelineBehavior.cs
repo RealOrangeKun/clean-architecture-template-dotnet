@@ -29,14 +29,25 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
             typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
         {
             Type valueType = typeof(TResponse).GetGenericArguments()[0];
-            System.Reflection.MethodInfo? failMethod = typeof(Result<>)
-                .MakeGenericType(valueType)
-                .GetMethod(nameof(Result.Fail), [typeof(IError[])]);
 
-            object? failedResult = failMethod!.Invoke(null, [new[] { error }]);
-            return (TResponse)failedResult!;
+            System.Reflection.MethodInfo? genericFailMethod = typeof(Result)
+                .GetMethods()
+                .Where(m => m.Name == nameof(Result.Fail) && m.IsGenericMethodDefinition)
+                .FirstOrDefault(m =>
+                {
+                    System.Reflection.ParameterInfo[] parameters = m.GetParameters();
+                    return parameters.Length == 1 && parameters[0].ParameterType == typeof(IError);
+                });
+
+            if (genericFailMethod != null)
+            {
+                System.Reflection.MethodInfo typedMethod = genericFailMethod.MakeGenericMethod(valueType);
+                object failedResult = typedMethod.Invoke(null, [error])!;
+                return (TResponse)failedResult;
+            }
         }
-        else if (typeof(TResponse) == typeof(Result))
+
+        if (typeof(TResponse) == typeof(Result))
         {
             var failedResult = Result.Fail(error);
             return (TResponse)(object)failedResult;
