@@ -6,4 +6,4 @@ public sealed record CreateUserCommand(
     string FirstName,
     string LastName,
     string Email,
-    string Password) : ICommand;
+    string Password) : ICommand<Guid>;

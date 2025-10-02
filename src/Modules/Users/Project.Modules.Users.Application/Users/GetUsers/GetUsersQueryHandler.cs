@@ -4,7 +4,6 @@ using FluentResults;
 using Project.Common.Application.Caching;
 using Project.Common.Application.Data;
 using Project.Common.Application.Messaging;
-using Project.Common.Domain;
 
 namespace Project.Modules.Users.Application.Users.GetUsers;
 
@@ -21,8 +20,7 @@ internal sealed class GetUsersQueryHandler(
             cancellationToken);
         if (cacheResult is not null)
         {
-            return Result.Ok(cacheResult)
-                .WithCustomSuccess("Users retrieved from cache.");
+            return Result.Ok(cacheResult);
         }
         await using DbConnection dbConnection = await dbConnectionFactory.OpenConnectionAsync(cancellationToken);
 
@@ -39,23 +37,13 @@ internal sealed class GetUsersQueryHandler(
 
         IReadOnlyCollection<UserResponse> users = [.. await dbConnection.QueryAsync<UserResponse>(sql, request)];
 
-        var usersWithWarnings = users
-            .Select(u =>
-                new UserResponse(
-                        u.Id,
-                        u.FirstName,
-                        u.LastName,
-                        u.Email))
-            .ToList();
-
         await cacheService.SetAsync(
             request.ToString(),
-            usersWithWarnings,
+            users,
             TimeSpan.FromMinutes(1),
             cancellationToken);
 
-        return Result.Ok((IReadOnlyCollection<UserResponse>)usersWithWarnings.AsReadOnly())
-            .WithCustomSuccess("Users retrieved successfully.");
+        return Result.Ok(users);
     }
 }
 

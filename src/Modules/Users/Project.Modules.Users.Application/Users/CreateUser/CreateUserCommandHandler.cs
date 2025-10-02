@@ -1,11 +1,9 @@
 using FluentResults;
 using Project.Common.Application.Messaging;
-using Project.Common.Domain;
 using Project.Modules.Users.Application.Abstractions.Data;
 using Project.Modules.Users.Application.Abstractions.Security;
 using Project.Modules.Users.Application.Abstractions.Users;
 using Project.Modules.Users.Domain.Users;
-using Microsoft.AspNetCore.Http;
 
 namespace Project.Modules.Users.Application.Users.CreateUser;
 
@@ -13,9 +11,9 @@ internal sealed class CreateUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher)
-    : ICommandHandler<CreateUserCommand>
+    : ICommandHandler<CreateUserCommand, Guid>
 {
-    public async Task<Result> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         User? existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
@@ -37,7 +35,6 @@ internal sealed class CreateUserCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Ok()
-            .WithCustomSuccess("User created successfully.", StatusCodes.Status201Created);
+        return Result.Ok(user.Id);
     }
 }
