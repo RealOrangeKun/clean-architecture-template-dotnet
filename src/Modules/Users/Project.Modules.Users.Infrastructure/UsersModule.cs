@@ -1,4 +1,3 @@
-using Project.Common.Infrastructure.Interceptors;
 using Project.Common.Presentation.Endpoints;
 using Project.Modules.Users.Application.Abstractions.Data;
 using Project.Modules.Users.Application.Abstractions.Security;
@@ -13,9 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Project.Modules.Users.Infrastructure.Outbox;
 using Project.Common.Application.Messaging;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Reflection;
 using Project.Common.Infrastructure.Outbox;
+using Project.Common.Application.EventBus;
+using Project.Modules.Users.Infrastructure.Inbox;
+using MassTransit;
 
 namespace Project.Modules.Users.Infrastructure;
 
@@ -26,6 +26,8 @@ public static class UsersModule
         IConfiguration configuration)
     {
         services.AddDomainEventHandlers();
+
+        services.AddIntegrationEventHandlers();
 
         services.AddInfrastructure(configuration);
 
@@ -64,6 +66,17 @@ public static class UsersModule
         return services;
     }
 
+    private static void AddIntegrationEventHandlers(this IServiceCollection services)
+    {
+        services.Scan(scan => scan
+            .FromAssemblies(Presentation.AssemblyReference.Assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.TryDecorate(typeof(IIntegrationEventHandler<>), typeof(IdempotentIntegrationEventHandler<>));
+    }
+
     private static void AddDomainEventHandlers(this IServiceCollection services)
     {
         services.Scan(scan => scan
@@ -72,7 +85,11 @@ public static class UsersModule
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
-        services.Decorate(typeof(IDomainEventHandler<>), typeof(IdempotentDomainEventHandler<>));
+        services.TryDecorate(typeof(IDomainEventHandler<>), typeof(IdempotentDomainEventHandler<>));
+    }
+
+    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
+    {
     }
 
 }
