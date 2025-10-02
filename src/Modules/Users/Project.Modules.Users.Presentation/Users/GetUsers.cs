@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Project.Common.Presentation.Results;
 using Microsoft.AspNetCore.Http;
-using Project.Modules.Users.Domain.Users;
 
 namespace Project.Modules.Users.Presentation.Users;
 
@@ -18,9 +17,8 @@ internal sealed class GetUsers : IEndpoint
         {
             Result<IReadOnlyCollection<UserResponse>> result = await sender.Send(new GetUsersQuery());
 
-            return result.ToApiResult();
+            return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization(policy => policy.RequireRole(Role.Admin.ToString()))
         .WithTags(Tags.Users);
     }
 }
