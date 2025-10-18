@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using Project.Common.Domain.Abstractions;
@@ -44,6 +45,6 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
             })
             .ToList();
 
-        context.Set<OutboxMessage>().AddRange(outboxMessages);
+        context.BulkInsertAsync(outboxMessages);
     }
 }
