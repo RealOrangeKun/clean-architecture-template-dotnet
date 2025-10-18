@@ -114,34 +114,31 @@ internal sealed class ProcessOutboxJob(
     {
         if (processedMessages.Count == 0) return;
 
-        var parameters = new DynamicParameters();
-        var valuesClauses = new List<string>();
-
-        for (int i = 0; i < processedMessages.Count; i++)
-        {
-            ProcessedOutboxMessage message = processedMessages[i];
-            string idParam = $"Id{i}";
-            string processedParam = $"ProcessedOn{i}";
-            string errorParam = $"Error{i}";
-
-            parameters.Add(idParam, message.Id);
-            parameters.Add(processedParam, message.ProcessedOnUtc);
-            parameters.Add(errorParam, message.Error);
-
-            valuesClauses.Add($"(@{idParam}, @{processedParam}, @{errorParam})");
-        }
-
-        string sql = $"""
+        string updateSql =
+            $"""
             UPDATE {Schemas.Users}.outbox_messages
             SET processed_on_utc = v.processed_on_utc,
                 error = v.error
             FROM (VALUES
-                {string.Join(",\n                ", valuesClauses)}
+                {0}
             ) AS v(id, processed_on_utc, error)
             WHERE outbox_messages.id = v.id::uuid
             """;
 
-        await connection.ExecuteAsync(sql, parameters, transaction: transaction);
+        string paramNames = string.Join(",", processedMessages.Select((_, i) => $"(@Id{i}, @ProcessedOn{i}, @Error{i})"));
+        string formattedSql = string.Format(updateSql, paramNames);
+
+        var parameters = new DynamicParameters();
+
+        for (int i = 0; i < processedMessages.Count; i++)
+        {
+            ProcessedOutboxMessage message = processedMessages[i];
+            parameters.Add($"Id{i}", message.Id);
+            parameters.Add($"ProcessedOn{i}", message.ProcessedOnUtc);
+            parameters.Add($"Error{i}", message.Error);
+        }
+
+        await connection.ExecuteAsync(formattedSql, parameters, transaction: transaction);
     }
 
     internal sealed record OutboxMessageResponse(Guid Id, string Content);
