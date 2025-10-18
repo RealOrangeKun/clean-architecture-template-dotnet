@@ -69,8 +69,8 @@ internal sealed class ProcessOutboxJob(
             }
 
             processedMessages.Add(new ProcessedOutboxMessage(
-                outboxMessage.Id, 
-                DateTime.UtcNow, 
+                outboxMessage.Id,
+                DateTime.UtcNow,
                 exception?.ToString()));
         }
 
@@ -112,19 +112,40 @@ internal sealed class ProcessOutboxJob(
         IDbTransaction transaction,
         IReadOnlyList<ProcessedOutboxMessage> processedMessages)
     {
-        const string sql =
-            $"""
+        if (processedMessages.Count == 0) return;
+
+        var parameters = new DynamicParameters();
+        var valuesClauses = new List<string>();
+
+        for (int i = 0; i < processedMessages.Count; i++)
+        {
+            ProcessedOutboxMessage message = processedMessages[i];
+            string idParam = $"Id{i}";
+            string processedParam = $"ProcessedOn{i}";
+            string errorParam = $"Error{i}";
+
+            parameters.Add(idParam, message.Id);
+            parameters.Add(processedParam, message.ProcessedOnUtc);
+            parameters.Add(errorParam, message.Error);
+
+            valuesClauses.Add($"(@{idParam}, @{processedParam}, @{errorParam})");
+        }
+
+        string sql = $"""
             UPDATE {Schemas.Users}.outbox_messages
-            SET processed_on_utc = @ProcessedOnUtc,
-                error = @Error
-            WHERE id = @Id
+            SET processed_on_utc = v.processed_on_utc,
+                error = v.error
+            FROM (VALUES
+                {string.Join(",\n                ", valuesClauses)}
+            ) AS v(id, processed_on_utc, error)
+            WHERE outbox_messages.id = v.id::uuid
             """;
 
-        await connection.ExecuteAsync(sql, processedMessages, transaction: transaction);
+        await connection.ExecuteAsync(sql, parameters, transaction: transaction);
     }
 
     internal sealed record OutboxMessageResponse(Guid Id, string Content);
-    
+
     internal sealed record ProcessedOutboxMessage(Guid Id, DateTime ProcessedOnUtc, string? Error);
 
 }
