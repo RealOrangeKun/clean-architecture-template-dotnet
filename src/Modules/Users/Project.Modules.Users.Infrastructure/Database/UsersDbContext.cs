@@ -2,10 +2,8 @@ using Project.Modules.Users.Application.Abstractions.Data;
 using Project.Modules.Users.Domain.Users;
 using Project.Modules.Users.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
-using PRoject.Common.Infrastructure.Outbox;
 using Project.Common.Infrastructure.Outbox;
 using Project.Common.Infrastructure.Inbox;
-
 namespace Project.Modules.Users.Infrastructure.Database;
 
 public class UsersDbContext(DbContextOptions<UsersDbContext> options)
