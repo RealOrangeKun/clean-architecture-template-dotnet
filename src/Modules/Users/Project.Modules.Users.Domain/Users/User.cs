@@ -24,7 +24,7 @@ public sealed class User : Entity
             HashedPassword = hashedPassword,
             Role = Role.User
         };
-        user.Raise(new UserCreatedDomainEvent(user.Id));
+        user.Raise(new UserCreatedDomainEvent(Guid.NewGuid(), DateTime.UtcNow, user.Id));
         return user;
     }
 
@@ -34,7 +34,7 @@ public sealed class User : Entity
         LastName = lastName;
         Email = email;
 
-        Raise(new UserUpdatedDomainEvent(Id, firstName, lastName, email));
+        Raise(new UserUpdatedDomainEvent(Guid.NewGuid(), DateTime.UtcNow, Id, firstName, lastName, email, Role.ToString()));
     }
 
 }
