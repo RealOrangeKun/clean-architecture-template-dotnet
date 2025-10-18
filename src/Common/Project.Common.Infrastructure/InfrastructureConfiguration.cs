@@ -61,8 +61,8 @@ public static class InfrastructureConfiguration
                 {
                     cfg.Host(options.RabbitMq.Host, options.RabbitMq.VirtualHost, h =>
                     {
-                        h.Username(options.RabbitMq.Username ?? throw new InvalidOperationException("RabbitMQ Username is required"));
-                        h.Password(options.RabbitMq.Password ?? throw new InvalidOperationException("RabbitMQ Password is required"));
+                        h.Username(options.RabbitMq.Username);
+                        h.Password(options.RabbitMq.Password);
                     });
 
                     cfg.UseMessageRetry(r =>
@@ -74,6 +74,7 @@ public static class InfrastructureConfiguration
                             intervalDelta: TimeSpan.FromSeconds(5)
                         );
                     });
+
 
                     cfg.UseScheduledRedelivery(r =>
                     {
