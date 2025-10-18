@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Project.Modules.Users.Presentation.Users;
 
@@ -19,6 +20,13 @@ internal sealed class LoginUser : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
+        .WithName(nameof(LoginUser))
+        .WithSummary("Authenticate user")
+        .WithDescription("Authenticates a user with email and password, returns access token.")
+        .Produces<LoginUserResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status500InternalServerError)
         .WithTags(Tags.Users);
     }
 

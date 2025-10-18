@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Project.Common.Presentation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Project.Modules.Users.Presentation.Users;
 
@@ -19,6 +20,11 @@ internal sealed class GetUsers : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.Users);
+        .WithTags(Tags.Users)
+        .WithName("GetUsers")
+        .WithSummary("Get all users")
+        .WithDescription("Retrieves a collection of all users in the system")
+        .Produces<IReadOnlyCollection<UserResponse>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

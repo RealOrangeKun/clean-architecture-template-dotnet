@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Project.Modules.Users.Presentation.Users;
 
@@ -27,6 +28,13 @@ internal sealed class RegisterUser : IEndpoint
                 ApiResults.Problem);
 
         })
+        .WithName(nameof(RegisterUser))
+        .WithSummary("Register a new user")
+        .WithDescription("Creates a new user account and returns the user ID with location header.")
+        .Produces<object>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status500InternalServerError)
         .WithTags(Tags.Users);
     }
 
