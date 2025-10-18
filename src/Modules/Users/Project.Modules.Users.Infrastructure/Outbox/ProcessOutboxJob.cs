@@ -34,6 +34,8 @@ internal sealed class ProcessOutboxJob(
 
         IReadOnlyList<OutboxMessageResponse> outboxMessages = await GetOutboxMessagesAsync(connection, transaction);
 
+        var processedMessages = new List<ProcessedOutboxMessage>();
+
         foreach (OutboxMessageResponse outboxMessage in outboxMessages)
         {
             Exception? exception = null;
@@ -66,7 +68,15 @@ internal sealed class ProcessOutboxJob(
                 exception = caughtException;
             }
 
-            await UpdateOutboxMessageAsync(connection, transaction, outboxMessage, exception);
+            processedMessages.Add(new ProcessedOutboxMessage(
+                outboxMessage.Id, 
+                DateTime.UtcNow, 
+                exception?.ToString()));
+        }
+
+        if (processedMessages.Count > 0)
+        {
+            await UpdateOutboxMessagesAsync(connection, transaction, processedMessages);
         }
 
         await transaction.CommitAsync();
@@ -97,11 +107,10 @@ internal sealed class ProcessOutboxJob(
         return [.. outboxMessages];
     }
 
-    private static async Task UpdateOutboxMessageAsync(
+    private static async Task UpdateOutboxMessagesAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        OutboxMessageResponse outboxMessage,
-        Exception? exception)
+        IReadOnlyList<ProcessedOutboxMessage> processedMessages)
     {
         const string sql =
             $"""
@@ -111,17 +120,11 @@ internal sealed class ProcessOutboxJob(
             WHERE id = @Id
             """;
 
-        await connection.ExecuteAsync(
-            sql,
-            new
-            {
-                outboxMessage.Id,
-                ProcessedOnUtc = DateTime.UtcNow,
-                Error = exception?.ToString()
-            },
-            transaction: transaction);
+        await connection.ExecuteAsync(sql, processedMessages, transaction: transaction);
     }
 
     internal sealed record OutboxMessageResponse(Guid Id, string Content);
+    
+    internal sealed record ProcessedOutboxMessage(Guid Id, DateTime ProcessedOnUtc, string? Error);
 
 }
