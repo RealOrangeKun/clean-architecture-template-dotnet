@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\..\Common\Project.Common.Infrastructure\Project.Common.Infrastructure.csproj" />
     <ProjectReference Include="..\Project.Modules.Users.Application\Project.Modules.Users.Application.csproj" />
     <ProjectReference Include="..\Project.Modules.Users.Presentation\Project.Modules.Users.Presentation.csproj" />
+    <ProjectReference Include="..\Project.Modules.Users.PublicApi\Project.Modules.Users.PublicApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

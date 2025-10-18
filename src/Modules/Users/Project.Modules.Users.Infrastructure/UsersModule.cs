@@ -61,7 +61,11 @@ public static class UsersModule
 
         services.Configure<OutboxOptions>(configuration.GetSection("Users:Outbox"));
 
+        services.Configure<OutboxOptions>(configuration.GetSection("Users:Inbox"));
+
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
+
+        services.ConfigureOptions<ConfigureProcessInboxJob>();
 
         return services;
     }
