@@ -24,9 +24,9 @@ public static class IntegrationEventHandlersFactory
             .Select(t => t.AsType())]
         );
 
-        foreach (Type _ in handlerTypes)
+        foreach (Type handlerType in handlerTypes)
         {
-            yield return (IIntegrationEventHandler)serviceProvider.GetRequiredService(handlerInterfaceType);
+            yield return (IIntegrationEventHandler)serviceProvider.GetRequiredService(handlerType);
         }
 
 

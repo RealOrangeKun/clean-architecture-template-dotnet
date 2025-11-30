@@ -24,9 +24,9 @@ public static class DomainEventHandlersFactory
             .Select(t => t.AsType())]
         );
 
-        foreach (Type _ in handlerTypes)
+        foreach (Type handlertype in handlerTypes)
         {
-            yield return (IDomainEventHandler)serviceProvider.GetRequiredService(handlerInterfaceType);
+            yield return (IDomainEventHandler)serviceProvider.GetRequiredService(handlertype);
         }
 
 
