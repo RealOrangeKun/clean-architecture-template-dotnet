@@ -16,6 +16,7 @@ using Project.Common.Infrastructure.Outbox;
 using Project.Common.Application.EventBus;
 using Project.Modules.Users.Infrastructure.Inbox;
 using MassTransit;
+using Project.Common.Infrastructure;
 
 namespace Project.Modules.Users.Infrastructure;
 
@@ -25,13 +26,13 @@ public static class UsersModule
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDomainEventHandlers();
-
-        services.AddIntegrationEventHandlers();
+        services
+            .AddDomainEventHandlers(typeof(IdempotentDomainEventHandler<>), Application.AssemblyReference.Assembly)
+            .AddIntegrationEventHandlers(typeof(IdempotentIntegrationEventHandler<>), Presentation.AssemblyReference.Assembly)
+            .AddModuleEndpoints(Presentation.AssemblyReference.Assembly)
+            .AddModuleEndpoints(Presentation.AssemblyReference.Assembly);
 
         services.AddInfrastructure(configuration);
-
-        services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
         return services;
     }
@@ -68,28 +69,6 @@ public static class UsersModule
         services.ConfigureOptions<ConfigureProcessInboxJob>();
 
         return services;
-    }
-
-    private static void AddIntegrationEventHandlers(this IServiceCollection services)
-    {
-        services.Scan(scan => scan
-            .FromAssemblies(Presentation.AssemblyReference.Assembly)
-            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), publicOnly: false)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        services.TryDecorate(typeof(IIntegrationEventHandler<>), typeof(IdempotentIntegrationEventHandler<>));
-    }
-
-    private static void AddDomainEventHandlers(this IServiceCollection services)
-    {
-        services.Scan(scan => scan
-            .FromAssemblies(Application.AssemblyReference.Assembly)
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        services.TryDecorate(typeof(IDomainEventHandler<>), typeof(IdempotentDomainEventHandler<>));
     }
 
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
