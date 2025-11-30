@@ -69,8 +69,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUIWithOpenApi();
 }
 
-Type[] dbContextTypes = [
-    typeof(UsersDbContext)];
+// Type[] dbContextTypes = [
+//     typeof(UsersDbContext)];
 
 // Uncomment the following line to test database connections on startup
 // await app.TestDatabaseConnectionsOnStartup(dbContextTypes);
