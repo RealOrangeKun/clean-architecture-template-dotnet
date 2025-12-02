@@ -1,4 +1,5 @@
 using FluentResults;
+using Microsoft.AspNetCore.Http;
 
 namespace Project.Common.Presentation.Results;
 
@@ -10,6 +11,14 @@ public static class ResultExtensions
         Func<Result, TOut> onFailure)
     {
         return result.IsSuccess ? onSuccess() : onFailure(result);
+    }
+
+    public static IResult Match(
+        this Result result,
+        IResult onSuccess,
+        Func<Result, IResult> onFailure)
+    {
+        return result.IsSuccess ? onSuccess : onFailure(result);
     }
 
     public static TOut Match<TIn, TOut>(
