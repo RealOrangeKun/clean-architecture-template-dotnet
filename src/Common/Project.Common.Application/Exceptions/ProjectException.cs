@@ -2,15 +2,8 @@ using FluentResults;
 
 namespace Project.Common.Application.Exceptions;
 
-public sealed class ProjectException : Exception
+public sealed class ProjectException(string requestName, Error? error = default, Exception? innerException = default) : Exception("Application exception occurred.", innerException)
 {
-    public ProjectException(string requestName, Error? error = default, Exception? innerException = default)
-        : base("Application exception occurred.", innerException)
-    {
-        RequestName = requestName;
-        Error = error;
-    }
-
-    public string RequestName { get; }
-    public Error? Error { get; }
+    public string RequestName { get; } = requestName;
+    public Error? Error { get; } = error;
 }

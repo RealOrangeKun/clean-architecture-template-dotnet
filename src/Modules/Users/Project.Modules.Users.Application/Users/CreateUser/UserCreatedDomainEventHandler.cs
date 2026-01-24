@@ -1,39 +1,36 @@
 using FluentResults;
 using MediatR;
 using Project.Common.Application.Email;
+using Project.Common.Application.EventBus;
+using Project.Common.Application.Exceptions;
 using Project.Common.Application.Messaging;
-using Project.Modules.Users.Application.Emails.Models;
 using Project.Modules.Users.Application.Users.GetUser;
 using Project.Modules.Users.Domain.Users;
+using Project.Modules.Users.IntegrationEvents.Users;
 
 namespace Project.Modules.Users.Application.Users.CreateUser;
 
 internal sealed class UserCreatedDomainEventHandler(
-    IEmailService emailService,
+    IEventBus eventBus,
     ISender sender)
     : DomainEventHandler<UserCreatedDomainEvent>
 {
     public override async Task HandleAsync(UserCreatedDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
-        Guid userId = domainEvent.UserId;
+        Result<UserResponse> result = await sender.Send(new GetUserQuery(domainEvent.UserId), cancellationToken);
 
-        Result<UserResponse> userResult = await sender.Send(new GetUserQuery(userId), cancellationToken);
-
-        UserResponse user = userResult.Value;
-
-        string templatePath = Path.Combine(AppContext.BaseDirectory, "Emails", "Templates", "WelcomeUser.cshtml");
-
-        var emailModel = new WelcomeUserEmailModel
+        if (result.IsFailed)
         {
-            FirstName = user.FirstName
-        };
+            throw new ProjectException(nameof(GetUserQuery), (Error)result.Errors);
+        }
 
-        await emailService.SendTemplateAsync(
-            user.Email,
-            "Welcome to Project!",
-            templatePath,
-            emailModel,
-            cancellationToken
-        );
+        await eventBus.PublishAsync(new UserCreatedIntegrationEvent(
+                domainEvent.Id,
+                domainEvent.OccurredOnUtc,
+                result.Value.Id,
+                result.Value.Email,
+                result.Value.FirstName,
+                result.Value.LastName,
+                result.Value.Role), cancellationToken);
     }
 }

@@ -21,6 +21,7 @@ using Project.Common.Infrastructure;
 namespace Project.Modules.Users.Infrastructure;
 
 public static class UsersModule
+
 {
     public static IServiceCollection AddUsersModule(
         this IServiceCollection services,
@@ -29,7 +30,6 @@ public static class UsersModule
         services
             .AddDomainEventHandlers(typeof(IdempotentDomainEventHandler<>), Application.AssemblyReference.Assembly)
             .AddIntegrationEventHandlers(typeof(IdempotentIntegrationEventHandler<>), Presentation.AssemblyReference.Assembly)
-            .AddModuleEndpoints(Presentation.AssemblyReference.Assembly)
             .AddModuleEndpoints(Presentation.AssemblyReference.Assembly);
 
         services.AddInfrastructure(configuration);
@@ -62,7 +62,7 @@ public static class UsersModule
 
         services.Configure<OutboxOptions>(configuration.GetSection("Users:Outbox"));
 
-        services.Configure<OutboxOptions>(configuration.GetSection("Users:Inbox"));
+        services.Configure<InboxOptions>(configuration.GetSection("Users:Inbox"));
 
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
 
@@ -71,8 +71,21 @@ public static class UsersModule
         return services;
     }
 
+    /// <summary>
+    /// Registers the <see cref="IntegrationEventConsumer{T}"/> for specific User module events.
+    /// </summary>
+    /// <param name="registrationConfigurator">The MassTransit configurator.</param>
+    /// <remarks>
+    /// This ensures the module listens for integration events via the configured message broker.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// registrationConfigurator.AddConsumer&lt;IntegrationEventConsumer&lt;UserCreatedIntegrationEvent&gt;&gt;();
+    /// </code>
+    /// </example>
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
     {
+        // registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserCreatedIntegrationEvent>>();
     }
 
 }

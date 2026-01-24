@@ -9,7 +9,6 @@ public sealed record UserCreatedIntegrationEvent(
     string Email,
     string FirstName,
     string LastName,
-    string Role,
-    string PhoneNumber
+    string Role
 ) : IntegrationEvent(Id, OccurredOnUtc);
 
