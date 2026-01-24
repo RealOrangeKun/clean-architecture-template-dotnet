@@ -1,5 +1,5 @@
 # Use the official .NET SDK image for build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # Copy everything (solution, projects, etc.)
@@ -14,7 +14,7 @@ RUN dotnet restore [ProjectName].csproj
 RUN dotnet publish [ProjectName].csproj -c Release -o ./out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 WORKDIR /app
 
