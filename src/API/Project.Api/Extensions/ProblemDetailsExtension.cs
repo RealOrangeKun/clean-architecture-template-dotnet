@@ -1,18 +1,20 @@
-
 namespace Project.Api.Extensions;
 
-internal static class ProblemDetailsExtension
+internal static class ProblemDetailsExtensions
 {
-    internal static IServiceCollection AddProblemDetailsWithExtensions(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddProblemDetails(options =>
+        internal IServiceCollection AddProblemDetailsWithExtensions()
         {
-            options.CustomizeProblemDetails = context =>
+            services.AddProblemDetails(options =>
             {
-                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
-            };
-        });
+                options.CustomizeProblemDetails = context =>
+                {
+                    context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+                };
+            });
 
-        return services;
+            return services;
+        }
     }
 }

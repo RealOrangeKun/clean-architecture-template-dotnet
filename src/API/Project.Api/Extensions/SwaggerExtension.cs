@@ -1,103 +1,74 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Project.Api.Extensions;
 
-internal static class SwaggerExtension
+internal static class OpenApiExtensions
 {
-    internal static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddSwaggerGen(options =>
+        internal IServiceCollection AddOpenApiDocumentation()
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
+            services.AddOpenApi(options =>
             {
-                Title = "Project API",
-                Version = "v1",
-                Description = "Project API Documentation",
-            });
-
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT"
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
-                    new OpenApiSecurityScheme
+                    document.Info = new()
                     {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        },
+                        Title = "Project API",
+                        Version = "v1",
+                        Description = "Project API Documentation",
+                    };
+
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
                         Scheme = "bearer",
-                        Name = "Bearer",
-                        In = ParameterLocation.Header
-                    },
-                    new List<string>()
-                }
-            });
-        });
-        return services;
-    }
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+                    };
 
-    internal static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services)
-    {
-        services.AddOpenApi(options =>
-        {
-            options.AddDocumentTransformer((document, context, cancellationToken) =>
-            {
-                document.Info = new OpenApiInfo
-                {
-                    Title = "Project API",
-                    Version = "v1",
-                    Description = "Project API Documentation",
-                };
-
-                document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
-                };
-
-                document.SecurityRequirements.Add(new OpenApiSecurityRequirement
-                {
+                    if (document.Paths is not null)
                     {
-                        new OpenApiSecurityScheme
+                        foreach (OpenApiPathItem path in document.Paths.Values.Cast<OpenApiPathItem>())
                         {
-                            Reference = new OpenApiReference
+                            if (path.Operations is not null)
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
+                                foreach (OpenApiOperation operation in path.Operations.Values)
+                                {
+                                    operation.Security ??= [];
+                                    operation.Security.Add(new()
+                                    {
+                                        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+                                    });
+                                }
                             }
-                        },
-                        new List<string>()
+                        }
                     }
+
+                    return Task.CompletedTask;
                 });
-
-                return Task.CompletedTask;
             });
-        });
 
-        return services;
-    }
-    internal static IApplicationBuilder UseSwaggerUIWithOpenApi(this IApplicationBuilder app)
-    {
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/openapi/v1.json", "Project API v1");
-            options.RoutePrefix = "swagger";
-        });
-        return app;
+            return services;
+        }
     }
 }
 
+public static class ApplicationBuilderExtensions
+{
+    extension(IApplicationBuilder app)
+    {
+        public IApplicationBuilder UseSwaggerUIWithOpenApi()
+        {
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/openapi/v1.json", "Project API v1");
+                options.RoutePrefix = "swagger";
+            });
+            return app;
+        }
+    }
+}

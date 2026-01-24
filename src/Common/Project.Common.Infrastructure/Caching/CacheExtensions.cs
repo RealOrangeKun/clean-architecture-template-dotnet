@@ -4,23 +4,24 @@ using Project.Common.Application.Caching;
 
 namespace Project.Common.Infrastructure.Caching;
 
-public static class CacheExensions
+public static class CacheExtensions
 {
-    public static IServiceCollection AddCachingInternal(
-        this IServiceCollection services,
-        string redisConnectionString)
+    extension(IServiceCollection services)
     {
-        services.AddStackExchangeRedisCache(options =>
+        public IServiceCollection AddCachingInternal(string redisConnectionString)
         {
-            options.Configuration = redisConnectionString;
-        });
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+            });
 
-        services.ConfigureOptions<HybridCacheConfigureOptions>();
+            services.ConfigureOptions<HybridCacheConfigureOptions>();
 
-        services.AddHybridCache();
+            services.AddHybridCache();
 
-        services.TryAddScoped<ICacheService, CacheService>();
+            services.TryAddScoped<ICacheService, CacheService>();
 
-        return services;
+            return services;
+        }
     }
 }

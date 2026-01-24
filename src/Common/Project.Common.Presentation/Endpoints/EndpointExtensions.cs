@@ -7,44 +7,46 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Project.Common.Presentation.Endpoints;
 
-public static class Endpointxtensions
+public static class EndpointExtensions
 {
     private static readonly ConcurrentDictionary<Assembly, Type[]> _endpointCache = [];
-    public static IServiceCollection AddEndpoints(this IServiceCollection services,
-        params Assembly[] assemblies)
+
+    extension(IServiceCollection services)
     {
-        foreach (Assembly assembly in assemblies)
+        public IServiceCollection AddEndpoints(Assembly assembly)
         {
             Type[] endpointTypes = _endpointCache.GetOrAdd(assembly, asm =>
                 [.. asm.DefinedTypes
-                    .Where(t => !t.IsAbstract && !t.IsInterface && t.IsAssignableTo(typeof(IEndpoint)))
-                    .Select(t => t.AsType())]
+                        .Where(t => !t.IsAbstract && !t.IsInterface && t.IsAssignableTo(typeof(IEndpoint)))
+                        .Select(t => t.AsType())]
             );
 
             foreach (Type type in endpointTypes)
             {
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IEndpoint), type));
             }
-        }
 
-        return services;
+            return services;
+        }
     }
 
-    public static IApplicationBuilder MapEndpoints(this WebApplication app,
-        RouteGroupBuilder? routeGroupBuilder = null)
+    extension(WebApplication app)
     {
-        IEnumerable<IEndpoint> endpoints = app.Services
-            .GetServices<IEndpoint>();
-
-        IEndpointRouteBuilder builder = routeGroupBuilder is null ?
-            app :
-            routeGroupBuilder;
-
-        foreach (IEndpoint endpoint in endpoints)
+        public IApplicationBuilder MapEndpoints(RouteGroupBuilder? routeGroupBuilder = null)
         {
-            endpoint.MapEndpoint(builder);
-        }
+            IEnumerable<IEndpoint> endpoints = app.Services
+                .GetServices<IEndpoint>();
 
-        return app;
+            IEndpointRouteBuilder builder = routeGroupBuilder is null ?
+                app :
+                routeGroupBuilder;
+
+            foreach (IEndpoint endpoint in endpoints)
+            {
+                endpoint.MapEndpoint(builder);
+            }
+
+            return app;
+        }
     }
 }

@@ -5,27 +5,24 @@ namespace Project.Common.Presentation.Results;
 
 public static class ResultExtensions
 {
-    public static TOut Match<TOut>(
-        this Result result,
-        Func<TOut> onSuccess,
-        Func<Result, TOut> onFailure)
+    extension(Result res)
     {
-        return result.IsSuccess ? onSuccess() : onFailure(result);
+        public TOut Match<TOut>(
+            Func<TOut> onSuccess,
+            Func<Result, TOut> onFailure)
+            => res.IsSuccess ? onSuccess() : onFailure(res);
+
+        public IResult Match(
+            IResult onSuccess,
+            Func<Result, IResult> onFailure)
+            => res.IsSuccess ? onSuccess : onFailure(res);
     }
 
-    public static IResult Match(
-        this Result result,
-        IResult onSuccess,
-        Func<Result, IResult> onFailure)
+    extension<TIn>(Result<TIn> res)
     {
-        return result.IsSuccess ? onSuccess : onFailure(result);
-    }
-
-    public static TOut Match<TIn, TOut>(
-        this Result<TIn> result,
-        Func<TIn, TOut> onSuccess,
-        Func<Result<TIn>, TOut> onFailure)
-    {
-        return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
+        public TOut Match<TOut>(
+            Func<TIn, TOut> onSuccess,
+            Func<Result<TIn>, TOut> onFailure)
+            => res.IsSuccess ? onSuccess(res.Value) : onFailure(res);
     }
 }

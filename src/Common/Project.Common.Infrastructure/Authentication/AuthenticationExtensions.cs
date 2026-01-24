@@ -4,19 +4,17 @@ namespace Project.Common.Infrastructure.Authentication;
 
 internal static class AuthenticationExtensions
 {
-
-    internal static IServiceCollection AddAuthenticationInternal(
-        this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddAuthorization();
+        internal IServiceCollection AddAuthenticationInternal()
+        {
+            services.AddAuthentication().AddJwtBearer();
 
-        services.AddAuthentication().AddJwtBearer();
+            services.AddHttpContextAccessor();
 
-        services.AddHttpContextAccessor();
+            services.ConfigureOptions<JwtBearerConfigureOptions>();
 
-        services.ConfigureOptions<JwtBearerConfigureOptions>();
-
-        return services;
+            return services;
+        }
     }
-
 }

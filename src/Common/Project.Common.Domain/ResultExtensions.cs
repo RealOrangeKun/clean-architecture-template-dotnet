@@ -7,34 +7,39 @@ namespace Project.Common.Domain;
 [Obsolete("Use Result.Ok() or Result<T>.Ok() with appropriate success messages instead")]
 public static class ResultExtensions
 {
-    public static Result WithCustomSuccess(
-        this Result result,
-        string message,
-        int statusCode = StatusCodes.Status200OK)
+    extension(Result result)
     {
-        if (result.IsFailed)
+        public Result WithCustomSuccess(
+            string message,
+            int statusCode = StatusCodes.Status200OK)
         {
-            return result;
+            if (result.IsFailed)
+            {
+                return result;
+            }
+
+            Success success = new Success(message)
+                .WithStatusCode(statusCode);
+
+            return result.WithSuccess(success);
         }
-
-        Success success = new Success(message)
-            .WithStatusCode(statusCode);
-
-        return result.WithSuccess(success);
     }
-    public static Result<T> WithCustomSuccess<T>(
-        this Result<T> result,
-        string message,
-        int statusCode = StatusCodes.Status200OK)
+
+    extension<T>(Result<T> result)
     {
-        if (result.IsFailed)
+        public Result<T> WithCustomSuccess(
+            string message,
+            int statusCode = StatusCodes.Status200OK)
         {
-            return result;
+            if (result.IsFailed)
+            {
+                return result;
+            }
+
+            Success success = new Success(message)
+                .WithStatusCode(statusCode);
+
+            return result.WithSuccess(success);
         }
-
-        Success success = new Success(message)
-            .WithStatusCode(statusCode);
-
-        return result.WithSuccess(success);
     }
 }
