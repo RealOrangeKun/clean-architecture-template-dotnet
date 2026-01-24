@@ -24,7 +24,7 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
 
     private static void InsertOutboxMessages(DbContext context)
     {
-        var outboxMessages = context
+        List<OutboxMessage> outboxMessages = [.. context
             .ChangeTracker
             .Entries<Entity>()
             .Select(entry => entry.Entity)
@@ -42,8 +42,7 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
                 Type = domainEvent.GetType().Name,
                 Content = JsonConvert.SerializeObject(domainEvent, SerializerSettings.Instance),
                 OccurredOnUtc = domainEvent.OccurredOnUtc
-            })
-            .ToList();
+            })];
 
         context.BulkInsertAsync(outboxMessages);
     }

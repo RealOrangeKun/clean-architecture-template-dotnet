@@ -117,7 +117,7 @@ public static class ApiResults
         }
 
         // Convert to base Result and call the main Problem method
-        var baseResult = Result.Fail(result.Errors.ToArray());
+        Result baseResult = Result.Fail([.. result.Errors]);
         return Problem(baseResult);
     }
 }

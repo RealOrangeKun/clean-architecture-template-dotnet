@@ -34,7 +34,7 @@ internal sealed class ProcessOutboxJob(
 
         IReadOnlyList<OutboxMessageResponse> outboxMessages = await GetOutboxMessagesAsync(connection, transaction);
 
-        var processedMessages = new List<ProcessedOutboxMessage>();
+        List<ProcessedOutboxMessage> processedMessages = [];
 
         foreach (OutboxMessageResponse outboxMessage in outboxMessages)
         {
@@ -128,7 +128,7 @@ internal sealed class ProcessOutboxJob(
         string paramNames = string.Join(",", processedMessages.Select((_, i) => $"(@Id{i}, @ProcessedOn{i}, @Error{i})"));
         string formattedSql = string.Format(updateSql, paramNames);
 
-        var parameters = new DynamicParameters();
+        DynamicParameters parameters = new();
 
         for (int i = 0; i < processedMessages.Count; i++)
         {

@@ -21,12 +21,11 @@ public class DomainEventsDispatcherInterceptor(
         DbContext? dbContext = eventData.Context
             ?? throw new InvalidOperationException("DbContext cannot be null.");
 
-        var entitiesWithEvents = dbContext
+        List<Entity> entitiesWithEvents = [.. dbContext
             .ChangeTracker
             .Entries<Entity>()
             .Select(e => e.Entity)
-            .Where(e => e.DomainEvents.Count != 0)
-            .ToList();
+            .Where(e => e.DomainEvents.Count != 0)];
 
         var domainEvents = entitiesWithEvents
             .SelectMany(e => e.DomainEvents)
