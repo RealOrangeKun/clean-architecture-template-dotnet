@@ -45,7 +45,7 @@ namespace Project.Modules.Users.Infrastructure.Database.Migrations
                 name: "ix_inbox_messages_processed_on_utc_occurred_on_utc",
                 schema: "users",
                 table: "inbox_messages",
-                columns: new[] { "processed_on_utc", "occurred_on_utc" });
+                columns: ["processed_on_utc", "occurred_on_utc"]);
         }
 
         /// <inheritdoc />
