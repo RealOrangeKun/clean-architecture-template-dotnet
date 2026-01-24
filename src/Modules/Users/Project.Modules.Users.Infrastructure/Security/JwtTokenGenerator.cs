@@ -21,14 +21,14 @@ public class JwtTokenGenerator(IOptions<JwtSettings> jwtOptions) : IJwtTokenGene
 
         Claim[] claims =
         [
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(ClaimTypes.Role, role)
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(ClaimTypes.Role, role)
         ];
 
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(key));
+        SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
+        JwtSecurityToken token = new(
             issuer: issuer,
             audience: audience,
             claims: claims,

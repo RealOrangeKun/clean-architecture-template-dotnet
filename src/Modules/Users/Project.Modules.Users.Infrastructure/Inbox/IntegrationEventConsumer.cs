@@ -8,7 +8,7 @@ using Project.Modules.Users.Infrastructure.Database;
 using MassTransit;
 using Newtonsoft.Json;
 
-namespace Kyx.Modules.Users.Infrastructure.Inbox;
+namespace Project.Modules.Users.Infrastructure.Inbox;
 
 internal sealed class IntegrationEventConsumer<TIntegrationEvent>(IDbConnectionFactory dbConnectionFactory)
     : IConsumer<TIntegrationEvent>

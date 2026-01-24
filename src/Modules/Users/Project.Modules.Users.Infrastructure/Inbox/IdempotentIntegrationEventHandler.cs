@@ -19,7 +19,7 @@ internal sealed class IdempotentIntegrationEventHandler<TIntegrationEvent>(
     {
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync(cancellationToken);
 
-        var inboxMessageConsumer = new InboxMessageConsumer(integrationEvent.Id, decorated.GetType().Name);
+        InboxMessageConsumer inboxMessageConsumer = new(integrationEvent.Id, decorated.GetType().Name);
 
         if (await InboxConsumerExistsAsync(connection, inboxMessageConsumer))
         {
