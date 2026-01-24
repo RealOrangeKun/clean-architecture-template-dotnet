@@ -1,4 +1,3 @@
-
 using MediatR;
 
 namespace Project.Common.Domain.Abstractions;

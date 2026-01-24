@@ -20,7 +20,6 @@ builder.Services.AddProblemDetailsWithExtensions();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<DatabaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-;
 
 // builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerDocumentation();
@@ -44,10 +43,10 @@ builder.Services.AddApplication(moduleApplicationAssemblies);
 
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow("Redis");
-string fromEmail = builder.Configuration.GetValueOrThrow<string>($"{FluentEmailOptions.SectionName}:From");
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(databaseConnectionString, name: "database", tags: ["ready"]);
+    .AddNpgSql(databaseConnectionString, name: "database", tags: ["ready"])
+    .AddRedis(redisConnectionString, name: "redis", tags: ["ready"]);
 
 Action<IRegistrationConfigurator>[] configureConsumersActions = [
     UsersModule.ConfigureConsumers];
@@ -65,14 +64,13 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // app.UseSwagger();
     app.UseSwaggerUIWithOpenApi();
 }
 
 // Type[] dbContextTypes = [
 //     typeof(UsersDbContext)];
 
-// Uncomment the following line to test database connections on startup
+// // Uncomment the following line to test database connections on startup
 // await app.TestDatabaseConnectionsOnStartup(dbContextTypes);
 
 app.UseCors("AllowAll");

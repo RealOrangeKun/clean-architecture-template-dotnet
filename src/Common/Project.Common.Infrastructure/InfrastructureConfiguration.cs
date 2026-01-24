@@ -17,6 +17,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Logs;
 using Project.Common.Application.EventBus;
 using Project.Common.Infrastructure.Configuration;
+using Project.Common.Infrastructure.Authorization;
 
 namespace Project.Common.Infrastructure;
 
@@ -26,6 +27,7 @@ public static class InfrastructureConfiguration
         this IServiceCollection services,
         InfrastructureOptions options)
     {
+        services.AddAuthorizationInternal();
 
         services.AddAuthenticationInternal();
 
@@ -47,57 +49,54 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IEventBus, EventBus.EventBus>();
 
-
         services.AddMassTransit(configure =>
+        {
+            foreach (Action<IRegistrationConfigurator> configureConsumers in options.ModuleConfigureConsumers)
             {
-                foreach (Action<IRegistrationConfigurator> configureConsumers in options.ModuleConfigureConsumers)
+                configureConsumers(configure);
+            }
+
+            configure.SetKebabCaseEndpointNameFormatter();
+
+            configure.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(options.RabbitMq.Host, options.RabbitMq.VirtualHost, h =>
                 {
-                    configureConsumers(configure);
-                }
-
-                configure.SetKebabCaseEndpointNameFormatter();
-
-                configure.UsingRabbitMq((ctx, cfg) =>
-                {
-                    cfg.Host(options.RabbitMq.Host, options.RabbitMq.VirtualHost, h =>
-                    {
-                        h.Username(options.RabbitMq.Username);
-                        h.Password(options.RabbitMq.Password);
-                    });
-
-                    cfg.UseMessageRetry(r =>
-                    {
-                        r.Exponential(
-                            retryLimit: 5,
-                            minInterval: TimeSpan.FromSeconds(5),
-                            maxInterval: TimeSpan.FromMinutes(1),
-                            intervalDelta: TimeSpan.FromSeconds(5)
-                        );
-                    });
-
-
-                    cfg.UseScheduledRedelivery(r =>
-                    {
-                        r.Intervals(
-                            TimeSpan.FromMinutes(1),
-                            TimeSpan.FromMinutes(5),
-                            TimeSpan.FromMinutes(15),
-                            TimeSpan.FromMinutes(30)
-                        );
-                    });
-
-                    cfg.UseCircuitBreaker(cb =>
-                    {
-                        cb.TrackingPeriod = TimeSpan.FromMinutes(1);
-                        cb.TripThreshold = 15;
-                        cb.ActiveThreshold = 10;
-                        cb.ResetInterval = TimeSpan.FromMinutes(5);
-                    });
-
-                    cfg.ConfigureEndpoints(ctx);
+                    h.Username(options.RabbitMq.Username);
+                    h.Password(options.RabbitMq.Password);
                 });
-            });
 
+                cfg.UseMessageRetry(r =>
+                {
+                    r.Exponential(
+                        retryLimit: 5,
+                        minInterval: TimeSpan.FromSeconds(5),
+                        maxInterval: TimeSpan.FromMinutes(1),
+                        intervalDelta: TimeSpan.FromSeconds(5)
+                    );
+                });
+
+                cfg.UseScheduledRedelivery(r =>
+                {
+                    r.Intervals(
+                        TimeSpan.FromMinutes(1),
+                        TimeSpan.FromMinutes(5),
+                        TimeSpan.FromMinutes(15),
+                        TimeSpan.FromMinutes(30)
+                    );
+                });
+
+                cfg.UseCircuitBreaker(cb =>
+                {
+                    cb.TrackingPeriod = TimeSpan.FromMinutes(1);
+                    cb.TripThreshold = 15;
+                    cb.ActiveThreshold = 10;
+                    cb.ResetInterval = TimeSpan.FromMinutes(5);
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
+        });
 
         services.AddOpenTelemetryInternal(options.LoggingBuilder, options);
 
@@ -139,14 +138,12 @@ public static class InfrastructureConfiguration
                 .AddConsoleExporter())
             .WithMetrics(meterProvider => meterProvider
                 .AddAspNetCoreInstrumentation()
-                // .AddRuntimeInstrumentation() 
                 .AddConsoleExporter());
 
         logging.ClearProviders();
         logging.AddOpenTelemetry(o =>
         {
             o.AddConsoleExporter();
-
             o.IncludeScopes = true;
             o.IncludeFormattedMessage = true;
         });
