@@ -35,12 +35,6 @@ public static class ConfigurationExtensions
                     Database = configuration.GetConnectionStringOrThrow(nameof(ConnectionStrings.Database)),
                     Redis = configuration.GetConnectionStringOrThrow(nameof(ConnectionStrings.Redis))
                 },
-                Email = new()
-                {
-                    From = configuration.GetValueOrThrow<string>($"{EmailConfiguration.SectionName}:{nameof(EmailConfiguration.From)}"),
-                    Host = configuration.GetValueOrThrow<string>($"{EmailConfiguration.SectionName}:{nameof(EmailConfiguration.Host)}"),
-                    Port = configuration.GetValueOrThrow<int>($"{EmailConfiguration.SectionName}:{nameof(EmailConfiguration.Port)}")
-                },
                 OpenTelemetryOptions = new()
                 {
                     ServiceName = configuration.GetValueOrThrow<string>($"{OpenTelemetryOptions.SectionName}:{nameof(OpenTelemetryOptions.ServiceName)}"),

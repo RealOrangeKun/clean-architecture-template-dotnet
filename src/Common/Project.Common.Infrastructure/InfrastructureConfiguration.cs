@@ -1,10 +1,8 @@
 ﻿using Project.Common.Application.Caching;
 using Project.Common.Application.Data;
-using Project.Common.Application.Email;
 using Project.Common.Infrastructure.Authentication;
 using Project.Common.Infrastructure.Caching;
 using Project.Common.Infrastructure.Data;
-using Project.Common.Infrastructure.Email;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
@@ -36,8 +34,6 @@ public static class InfrastructureConfiguration
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
         services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
-
-        services.AddEmailServices(options.Email);
 
         services.AddQuartz();
 
@@ -99,22 +95,6 @@ public static class InfrastructureConfiguration
         });
 
         services.AddOpenTelemetryInternal(options.LoggingBuilder, options);
-
-        return services;
-    }
-
-    private static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        EmailConfiguration emailConfig)
-    {
-        services.AddOptions<FluentEmailOptions>()
-            .BindConfiguration(FluentEmailOptions.SectionName);
-
-        services.AddFluentEmail(emailConfig.From)
-            .AddRazorRenderer()
-            .AddSmtpSender(emailConfig.Host, emailConfig.Port);
-
-        services.TryAddScoped<IEmailService, EmailService>();
 
         return services;
     }
