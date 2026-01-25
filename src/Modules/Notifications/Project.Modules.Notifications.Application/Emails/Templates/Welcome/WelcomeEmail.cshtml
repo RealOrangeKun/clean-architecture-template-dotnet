@@ -1,0 +1,104 @@
+@using Project.Modules.Notifications.Application.Emails.Templates.Welcome
+@model WelcomeEmailTemplate
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Subject</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .content p {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #2980b9;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+        .highlight {
+            color: #3498db;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Welcome to Our Platform! 🎉</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi <span class="highlight">@Model.FirstName</span>,</p>
+            
+            <p>We're thrilled to have you join our community! Your account has been successfully created and you're all set to get started.</p>
+            
+            <p>Here's what you can do next:</p>
+            <ul>
+                <li>Complete your profile</li>
+                <li>Explore our features</li>
+                <li>Connect with other users</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="@Model.LoginUrl" class="cta-button">Get Started Now</a>
+            </div>
+            
+            <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
+            
+            <p>Best regards,<br/>
+            <strong>The Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; @Model.CurrentYear Your Company. All rights reserved.</p>
+            <p>If you didn't create this account, please ignore this email.</p>
+        </div>
+    </div>
+</body>
+</html>
