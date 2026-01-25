@@ -27,6 +27,8 @@
     <ProjectReference Include="..\..\Common\Project.Common.Application\Project.Common.Application.csproj" />
     <ProjectReference Include="..\..\Common\Project.Common.Infrastructure\Project.Common.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\Project.Common.Presentation\Project.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Project.Modules.Notifications.Application\Project.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Project.Modules.Notifications.Infrastructure\Project.Modules.Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Users\Project.Modules.Users.Application\Project.Modules.Users.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Users\Project.Modules.Users.Infrastructure\Project.Modules.Users.Infrastructure.csproj" />
   </ItemGroup>

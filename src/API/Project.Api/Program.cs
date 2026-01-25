@@ -9,8 +9,8 @@ using Project.Modules.Users.Infrastructure;
 using Project.Modules.Users.Infrastructure.Database;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
-using Project.Common.Infrastructure.Email;
 using MassTransit;
+using Project.Modules.Notifications.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +21,7 @@ builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<DatabaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerDocumentation();
+
 builder.Services.AddOpenApiDocumentation();
 
 
@@ -49,7 +48,8 @@ builder.Services.AddHealthChecks()
     .AddRedis(redisConnectionString, name: "redis", tags: ["ready"]);
 
 Action<IRegistrationConfigurator>[] configureConsumersActions = [
-    UsersModule.ConfigureConsumers];
+    UsersModule.ConfigureConsumers,
+    NotificationsModule.ConfigureConsumers];
 
 InfrastructureOptions infrastructureOptions = builder.Configuration.BuildInfrastructureOptions(
     builder.Logging,
@@ -58,6 +58,8 @@ InfrastructureOptions infrastructureOptions = builder.Configuration.BuildInfrast
 builder.Services.AddInfrastructure(infrastructureOptions);
 
 builder.Services.AddUsersModule(builder.Configuration);
+
+builder.Services.AddNotificationsModule(builder.Configuration);
 
 WebApplication app = builder.Build();
 
