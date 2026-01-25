@@ -1,0 +1,34 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/" />
+  <Folder Name="/src/API/">
+    <Project Path="src/API/Project.Api/Project.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/Project.Common.Application/Project.Common.Application.csproj" />
+    <Project Path="src/Common/Project.Common.Domain/Project.Common.Domain.csproj" />
+    <Project Path="src/Common/Project.Common.Infrastructure/Project.Common.Infrastructure.csproj" />
+    <Project Path="src/Common/Project.Common.Presentation/Project.Common.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.Application/Project.Modules.Notifications.Application.csproj" />
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.Domain/Project.Modules.Notifications.Domain.csproj" />
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.Infrastructure/Project.Modules.Notifications.Infrastructure.csproj" />
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.IntegrationEvents/Project.Modules.Notifications.IntegrationEvents.csproj" />
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.Presentation/Project.Modules.Notifications.Presentation.csproj" />
+    <Project Path="src/Modules/Notifications/Project.Modules.Notifications.PublicApi/Project.Modules.Notifications.PublicApi.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Users/">
+    <Project Path="src/Modules/Users/Project.Modules.Users.Application/Project.Modules.Users.Application.csproj" />
+    <Project Path="src/Modules/Users/Project.Modules.Users.Domain/Project.Modules.Users.Domain.csproj" />
+    <Project Path="src/Modules/Users/Project.Modules.Users.Infrastructure/Project.Modules.Users.Infrastructure.csproj" />
+    <Project Path="src/Modules/Users/Project.Modules.Users.IntegrationEvents/Project.Modules.Users.IntegrationEvents.csproj" />
+    <Project Path="src/Modules/Users/Project.Modules.Users.Presentation/Project.Modules.Users.Presentation.csproj" />
+    <Project Path="src/Modules/Users/Project.Modules.Users.PublicApi/Project.Modules.Users.PublicApi.csproj" />
+  </Folder>
+</Solution>
