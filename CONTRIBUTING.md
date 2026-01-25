@@ -96,12 +96,13 @@ src/
 
 ### General Guidelines
 
-- Use **C# 12** features appropriately
+- Use **C# 14** features appropriately
 - Enable **nullable reference types**
 - Follow **SOLID** principles
 - Use **dependency injection** for all dependencies
 - Prefer **immutability** where possible
 - Use **records** for DTOs and value objects
+- Use **primary constructors** for dependency injection (C# 12+ feature)
 
 ### Naming Conventions
 
@@ -127,19 +128,35 @@ Commands and queries should follow these conventions:
 // Command (modifies state)
 public sealed record CreateUserCommand(string Email, string FirstName) : ICommand;
 
-// Command Handler
-internal sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>
+// Command Handler - using primary constructor
+internal sealed class CreateUserCommandHandler(
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork) : ICommandHandler<CreateUserCommand>
 {
-    // Implementation
+    public async Task<Result> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+    {
+        // Use injected dependencies directly
+        var user = User.Create(command.Email, command.FirstName);
+        userRepository.Add(user);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
 }
 
 // Query (reads state)
 public sealed record GetUserQuery(Guid UserId) : IQuery<UserResponse>;
 
-// Query Handler
-internal sealed class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResponse>
+// Query Handler - using primary constructor
+internal sealed class GetUserQueryHandler(
+    IUserRepository userRepository) : IQueryHandler<GetUserQuery, UserResponse>
 {
-    // Implementation
+    public async Task<Result<UserResponse>> Handle(GetUserQuery query, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.GetByIdAsync(query.UserId, cancellationToken);
+        return user is not null 
+            ? Result.Ok(new UserResponse(user.Id, user.Email)) 
+            : Result.Fail<UserResponse>("User not found");
+    }
 }
 ```
 
