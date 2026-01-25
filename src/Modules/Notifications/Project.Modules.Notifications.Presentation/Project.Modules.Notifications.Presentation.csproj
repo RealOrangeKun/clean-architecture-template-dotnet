@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Users/Project.Modules.Users.IntegrationEvents/Project.Modules.Users.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\..\Common\Project.Common.Infrastructure\Project.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Common\Project.Common.Presentation\Project.Common.Presentation.csproj" />
+    <ProjectReference Include="..\Project.Modules.Notifications.Application\Project.Modules.Notifications.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Users/" />
+  </ItemGroup>
+
+</Project>
