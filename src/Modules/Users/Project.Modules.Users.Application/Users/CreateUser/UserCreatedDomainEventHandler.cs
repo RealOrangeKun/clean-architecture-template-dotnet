@@ -1,6 +1,5 @@
 using FluentResults;
 using MediatR;
-using Project.Common.Application.Email;
 using Project.Common.Application.EventBus;
 using Project.Common.Application.Exceptions;
 using Project.Common.Application.Messaging;
