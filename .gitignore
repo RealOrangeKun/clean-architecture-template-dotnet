@@ -464,4 +464,4 @@ rabbitmq_data
 # package-lock.json
 # yarn.lock
 
-.vscode
+.vscode/
