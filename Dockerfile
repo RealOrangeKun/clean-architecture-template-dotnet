@@ -2,26 +2,27 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
-# Copy everything (solution, projects, etc.)
-COPY . .
-
-WORKDIR /app/src/API/[ProjectName]
+# Copy solution and project files
+COPY Template.slnx ./
+COPY global.json ./
+COPY src/ ./src/
 
 # Restore dependencies
-RUN dotnet restore [ProjectName].csproj
+RUN dotnet restore Template.slnx
 
 # Build and publish
-RUN dotnet publish [ProjectName].csproj -c Release -o ./out
+RUN dotnet publish src/API/Project.Api/Project.Api.csproj -c Release -o /app/publish
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 WORKDIR /app
 
-COPY --from=build /app/src/API/[ProjectName]/out ./
+COPY --from=build /app/publish ./
 
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://0.0.0.0:80
+ENV ASPNETCORE_URLS=http://+:8080
 
-ENTRYPOINT ["dotnet", "[ProjectName].dll"]
-EXPOSE 80
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "Project.Api.dll"]
