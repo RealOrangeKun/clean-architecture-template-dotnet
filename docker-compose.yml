@@ -9,11 +9,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__Database=Host=postgres;Database=project_db;Username=postgres;Password=postgres
+      - ConnectionStrings__Database=Host=postgres-project;Database=project_db;Username=postgres;Password=postgres
       - ConnectionStrings__Redis=redis:6379
-      - MessageBroker__Host=rabbitmq
-      - MessageBroker__Username=admin
-      - MessageBroker__Password=admin
+      - RabbitMQ__Host=rabbitmq-project
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
     depends_on:
       - postgres
       - redis
@@ -32,7 +32,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=project_db
     volumes:
-      - ./postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
     networks:
       - project-network
 
@@ -43,7 +43,7 @@ services:
       - "6379:6379"
     command: redis-server --appendonly yes
     volumes:
-      - ./redis_data:/data
+      - redis_data:/data
     networks:
       - project-network
 
@@ -66,7 +66,7 @@ services:
     ports:
       - "5050:80"
     volumes:
-      - ./pgadmin_data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
     networks:
@@ -75,7 +75,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
-    container_name: rabbitmq_project
+    container_name: rabbitmq-project
     ports:
       - "5672:5672" 
       - "15672:15672"
@@ -83,7 +83,7 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
     volumes:
-      - ./rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - project-network
     restart: unless-stopped
