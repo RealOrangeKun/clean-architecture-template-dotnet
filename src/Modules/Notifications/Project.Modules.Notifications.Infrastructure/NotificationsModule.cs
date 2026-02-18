@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 using Project.Modules.Notifications.Infrastructure.Database;
 using Project.Modules.Notifications.Application.Abstractions.Data;
+using Project.Modules.Users.IntegrationEvents.Users;
 
 namespace Project.Modules.Notifications.Infrastructure;
 
@@ -75,5 +76,6 @@ public static class NotificationsModule
 
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
     {
+        registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserCreatedIntegrationEvent>>();
     }
 }

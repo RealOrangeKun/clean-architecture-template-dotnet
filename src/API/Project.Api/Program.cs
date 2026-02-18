@@ -36,7 +36,8 @@ builder.Services.AddCors(options =>
 });
 
 Assembly[] moduleApplicationAssemblies = [
-    Project.Modules.Users.Application.AssemblyReference.Assembly];
+    Project.Modules.Users.Application.AssemblyReference.Assembly,
+    Project.Modules.Notifications.Application.AssemblyReference.Assembly];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
 
